@@ -6,6 +6,7 @@ using UnityEngine.AI;
 public class CatMovement : MonoBehaviour
 {
     public Transform leader;
+    public bool catSeesLeader;
     NavMeshAgent cat;
 
     private void Start()
@@ -15,11 +16,26 @@ public class CatMovement : MonoBehaviour
 
     private void Update()
     {
-        Debug.Log(Vector3.Distance(leader.position, transform.position));
-        cat.SetDestination(leader.position);
         if (Vector3.Distance(leader.position, transform.position) < 2)
         {
             cat.ResetPath();
+            return;
+        }
+
+        if (catSeesLeader)
+        {
+            cat.SetDestination(leader.position);
+
+        }
+
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+            Debug.Log(other);
+        if (other.gameObject.GetComponent<LeaderMovement>() != null)
+        {
+            catSeesLeader = true;
         }
     }
 }
