@@ -9,10 +9,22 @@ public class Leader : MonoBehaviour
     NavMeshAgent leader;
     public LayerMask walkableLayer;
     //List<Vector3> hits = new List<Vector3>();
-    public RectTransform walkTarget;
-    public Canvas canvas;
     [SerializeField]
-    List<Cat> catInventory = new List<Cat>();
+    public List<Cat> catInventory = new List<Cat>();
+
+    public RectTransform canvas;
+    public RectTransform walkTargetUI;
+    public RectTransform mousePointer;
+    public Vector3 walkTargetWorldSpace;
+    public Ray clickedRaycastPosition;
+    public Ray mousePositionRay;
+    public RaycastHit mousePositionRaycastHit;
+    public RaycastHit moveRaycastHit;
+    public RaycastHit actionRaycastHit;
+    Camera camera;
+    public GameObject aim;
+
+    public Transform catSpawn;
 
 
 
@@ -20,59 +32,116 @@ public class Leader : MonoBehaviour
     {
         leader = GetComponent<NavMeshAgent>();
 
-        walkTarget.gameObject.SetActive(false);
+        walkTargetUI.gameObject.SetActive(false);
+        camera = Camera.main;
     }
+
 
     void Update()
     {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        mousePositionRay = camera.ScreenPointToRay(Input.mousePosition);
 
+        // Update mouse aim circle
+        Physics.Raycast(mousePositionRay, out mousePositionRaycastHit, Mathf.Infinity, walkableLayer);
+        Vector3 mousePositionWorldSpace = mousePositionRaycastHit.point;
+        aim.transform.position = new Vector3(mousePositionWorldSpace.x, .6f, mousePositionWorldSpace.z);
+
+        Vector2 aimPositionInViewport = camera.WorldToViewportPoint(aim.transform.position);
+        Vector2 aimPositionConverted = new Vector2(
+            (aimPositionInViewport.x * canvas.sizeDelta.x) - (canvas.sizeDelta.x * 0.5f),
+            (aimPositionInViewport.y * canvas.sizeDelta.y) - (canvas.sizeDelta.y * 0.5f));
+        mousePointer.anchoredPosition = aimPositionConverted;
+
+        // Move to right click location
         if (Input.GetMouseButtonDown(1))
         {
-            RaycastHit hit;
+            Physics.Raycast(mousePositionRay, out moveRaycastHit, Mathf.Infinity, walkableLayer);
 
-            if (Physics.Raycast(ray, out hit, Mathf.Infinity, walkableLayer))
+            if (Physics.Raycast(mousePositionRay, out moveRaycastHit, Mathf.Infinity, walkableLayer))
             {
-                walkTarget.position = ray.origin;
-                walkTarget.gameObject.SetActive(true);
-                leader.SetDestination(hit.point);
-                //hits.Add(hit.point);
+                walkTargetWorldSpace = moveRaycastHit.point;
+                walkTargetUI.gameObject.SetActive(true);
+                leader.SetDestination(walkTargetWorldSpace);
             }
         }
 
-        //Debug.Log("Ray origin: " + ray.origin);
-        //Debug.Log("Leader WorldToScreenPoint: " + Camera.main.WorldToScreenPoint(transform.position));
-        //Debug.Log("ScreenPointToLocalPointInRectangle: " + worldToUISpace(canvas, transform.position));
-        //transform.position = worldToUISpace(canvas, transform.position);
-        if (transform.position == ray.origin)
+        Vector2 movePositionInViewport = camera.WorldToViewportPoint(walkTargetWorldSpace);
+        Vector2 movePositionConverted = new Vector2(
+            (movePositionInViewport.x * canvas.sizeDelta.x) - (canvas.sizeDelta.x * 0.5f),
+            (movePositionInViewport.y * canvas.sizeDelta.y) - (canvas.sizeDelta.y * 0.5f));
+        walkTargetUI.anchoredPosition = movePositionConverted;
+
+        if (transform.position.x == walkTargetWorldSpace.x && transform.position.z == walkTargetWorldSpace.z)
         {
-            walkTarget.gameObject.SetActive(false);
+            walkTargetUI.gameObject.SetActive(false);
+        }
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (Physics.Raycast(mousePositionRay, out actionRaycastHit, Mathf.Infinity, walkableLayer))
+            {
+                if (catInventory.Count > 0)
+                {
+                    Cat catToThrow = catInventory[0];
+
+                    catToThrow.transform.position = catSpawn.position;
+
+                    Debug.Log(mousePositionRay.origin);
+                    Debug.Log(actionRaycastHit.point);
+
+                    Vector3 throwToward = mousePositionRay.origin;
+                    Vector2 direction = (Vector2)(Input.mousePosition - throwToward);
+                    direction.Normalize();
+
+
+                    catToThrow.ThrowCat(direction);
+                    //body.isKinematic = false;
+                    catToThrow.body.AddForce(direction * catToThrow.throwSpeed, ForceMode.Impulse);
+
+                    AddRemoveCatInventory(catToThrow);
+                }
+
+            }
+        }
+
+
+
+
+
+
+
+
+
+        //UpdateWalkTargetUIPosition();
+    }
+
+    void Move()
+    {
+
+
+        // TODO remove walk target when reached
+    }
+
+    void UpdateWalkTargetUIPosition()
+    {
+        Vector3 targetPositionScreenPoint = camera.WorldToViewportPoint(walkTargetWorldSpace);
+        //Debug.Log("Walk target: " + walkTargetWorldSpace);
+        //Debug.Log("TargetScreenPoint: " + targetPositionScreenPoint);
+        walkTargetUI.anchoredPosition = targetPositionScreenPoint;
+    }
+    void Action()
+    {
+    }
+
+    public void AddRemoveCatInventory(Cat cat)
+    {
+        if (!catInventory.Contains(cat))
+        {
+            catInventory.Add(cat);
+        }
+        else
+        {
+            catInventory.Remove(cat);
         }
     }
-
-    public void AddCatToInventory(Cat cat)
-    {
-        catInventory.Add(cat);
-    }
-
-
-    public Vector3 worldToUISpace(Canvas parentCanvas, Vector3 worldPos)
-    {
-        //Convert the world for screen point so that it can be used with ScreenPointToLocalPointInRectangle function
-        Vector3 screenPos = Camera.main.WorldToScreenPoint(worldPos);
-        Vector2 movePos;
-
-        //Convert the screenpoint to ui rectangle local point
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(parentCanvas.transform as RectTransform, screenPos, parentCanvas.worldCamera, out movePos);
-        //Convert the local point to world point
-        return parentCanvas.transform.TransformPoint(movePos);
-    }
-    //private void OnDrawGizmos()
-    //{
-    //    Gizmos.color = Color.red;
-    //    foreach (Vector3 hit in hits)
-    //    {
-    //        Gizmos.DrawSphere(hit, .1f);
-    //    }
-    //}
 }

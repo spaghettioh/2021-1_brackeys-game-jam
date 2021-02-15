@@ -5,37 +5,92 @@ using UnityEngine.AI;
 
 public class Cat : MonoBehaviour
 {
-    public Transform leader;
+    Leader leader;
     public bool followLeader;
-    NavMeshAgent cat;
+    NavMeshAgent agent;
+    [HideInInspector]
+    public Rigidbody body;
+    public float throwSpeed;
+    public float moveSpeed;
+    public bool thrown;
+    public bool isFollowing;
+    public bool nearLeader;
+
     private void Start()
     {
-        cat = GetComponent<NavMeshAgent>();
+        agent = GetComponent<NavMeshAgent>();
+        body = GetComponent<Rigidbody>();
+
+        leader = FindObjectOfType<Leader>();
     }
 
     private void Update()
     {
-        if (Vector3.Distance(leader.position, transform.position) < 2)
+        if (leader.catInventory.Contains(this))
         {
-            cat.ResetPath();
-            return;
+            isFollowing = true;
+
+        }
+        else
+        {
+            isFollowing = false;
         }
 
         if (followLeader)
         {
-            cat.SetDestination(leader.position);
+            //body.isKinematic = true;
+            if (Vector3.Distance(transform.position, leader.transform.position) > 2 && !thrown)
+            {
+                transform.position = Vector3.MoveTowards(transform.position, leader.transform.position, .1f);
 
+            }
         }
+    }
 
+    private void OnCollisionEnter(Collision collision)
+    {
+        thrown = false;
+
+        //if (nearLeader)
+        //{
+        //    followLeader = true;
+        //    leader.AddRemoveCatInventory(this);
+        //}
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        Leader leader = other.gameObject.GetComponent<Leader>();
-        if (leader != null)
+        if (other.gameObject.GetComponent<Leader>() == leader)
         {
             followLeader = true;
-            leader.AddCatToInventory(this);
+            leader.AddRemoveCatInventory(this);
+        }
+    }
+
+    public void ThrowCat(Vector3 target)
+    {
+        followLeader = false;
+
+
+        //body.isKinematic = false;
+        body.AddForce(target * throwSpeed, ForceMode.Impulse);
+        thrown = true;
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.GetComponent<Leader>() == leader)
+        {
+            followLeader = false;
+            //nearLeader = false;
+        }
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.gameObject.GetComponent<Leader>() == leader)
+        {
+            //nearLeader = true;
         }
     }
 }
