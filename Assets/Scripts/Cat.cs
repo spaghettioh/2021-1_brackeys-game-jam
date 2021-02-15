@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class CatMovement : MonoBehaviour
+public class Cat : MonoBehaviour
 {
     public Transform leader;
-    public bool catSeesLeader;
+    public bool followLeader;
     NavMeshAgent cat;
-
     private void Start()
     {
         cat = GetComponent<NavMeshAgent>();
@@ -22,7 +21,7 @@ public class CatMovement : MonoBehaviour
             return;
         }
 
-        if (catSeesLeader)
+        if (followLeader)
         {
             cat.SetDestination(leader.position);
 
@@ -32,10 +31,11 @@ public class CatMovement : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-            Debug.Log(other);
-        if (other.gameObject.GetComponent<LeaderMovement>() != null)
+        Leader leader = other.gameObject.GetComponent<Leader>();
+        if (leader != null)
         {
-            catSeesLeader = true;
+            followLeader = true;
+            leader.AddCatToInventory(this);
         }
     }
 }
