@@ -26,16 +26,6 @@ public class Cat : MonoBehaviour
 
     private void Update()
     {
-        if (leader.catInventory.Contains(this))
-        {
-            isFollowing = true;
-
-        }
-        else
-        {
-            isFollowing = false;
-        }
-
         if (followLeader)
         {
             //body.isKinematic = true;

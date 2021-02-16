@@ -543,8 +543,6 @@ MonoBehaviour:
   canvas: {fileID: 1022206035}
   walkTargetUI: {fileID: 1246839551}
   mousePointer: {fileID: 1770219879}
-  walkTargetWorldSpace: {x: 0, y: 0, z: 0}
-  actionTargetWorldSpace: {x: 0, y: 0, z: 0}
   aim: {fileID: 296498255}
   catSpawn: {fileID: 1879617668}
 --- !u!195 &541154151

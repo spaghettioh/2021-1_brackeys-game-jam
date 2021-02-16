@@ -7,34 +7,42 @@ using UnityEngine.UI;
 public class Leader : MonoBehaviour
 {
     NavMeshAgent leader;
-    public LayerMask walkableLayer;
+    [SerializeField]
+    LayerMask walkableLayer;
     //List<Vector3> hits = new List<Vector3>();
     [SerializeField]
-    public List<Cat> catInventory = new List<Cat>();
+    List<Cat> catInventory = new List<Cat>();
 
-    public RectTransform canvas;
-    public RectTransform walkTargetUI;
-    public RectTransform mousePointer;
-    public Vector3 walkTargetWorldSpace;
-    public Vector3 actionTargetWorldSpace;
-    public Ray clickedRaycastPosition;
-    public Ray mousePositionRay;
-    public RaycastHit mousePositionRaycastHit;
-    public RaycastHit moveRaycastHit;
-    public RaycastHit actionRaycastHit;
+    [SerializeField]
+    RectTransform canvas;
+    [SerializeField]
+    RectTransform walkTargetUI;
+    [SerializeField]
+    RectTransform mousePointer;
+
+    Vector3 walkTargetWorldSpace;
+    Vector3 actionTargetWorldSpace;
+    Ray mousePositionRay;
+    RaycastHit mousePositionRaycastHit;
+    RaycastHit moveRaycastHit;
+    RaycastHit actionRaycastHit;
     Camera camera;
-    public GameObject aim;
 
-    public Transform catSpawn;
+    [SerializeField]
+    GameObject aim;
+    [SerializeField]
+    Transform catSpawn;
 
 
 
     private void Start()
     {
+        // Grab some components
         leader = GetComponent<NavMeshAgent>();
-
-        walkTargetUI.gameObject.SetActive(false);
         camera = Camera.main;
+
+        // Turn off the UI elements
+        walkTargetUI.gameObject.SetActive(false);
     }
 
 
@@ -42,20 +50,7 @@ public class Leader : MonoBehaviour
     {
         mousePositionRay = camera.ScreenPointToRay(Input.mousePosition);
 
-        // Update mouse aim circle
-        Physics.Raycast(mousePositionRay, out mousePositionRaycastHit, Mathf.Infinity, walkableLayer);
-        Vector3 mousePositionWorldSpace = mousePositionRaycastHit.point;
-        aim.transform.position = new Vector3(mousePositionWorldSpace.x, .6f, mousePositionWorldSpace.z);
-
-        // then you calculate the position of the UI element
-        // 0,0 for the canvas is at the center of the screen, whereas
-        // WorldToViewPortPoint treats the lower left corner as 0,0. Because of this,
-        // you need to subtract the height / width of the canvas * 0.5 to get the correct position.
-        Vector2 aimPositionInViewport = camera.WorldToViewportPoint(aim.transform.position);
-        Vector2 aimPositionConverted = new Vector2(
-            (aimPositionInViewport.x * canvas.sizeDelta.x) - (canvas.sizeDelta.x * 0.5f),
-            (aimPositionInViewport.y * canvas.sizeDelta.y) - (canvas.sizeDelta.y * 0.5f));
-        mousePointer.anchoredPosition = aimPositionConverted;
+        UpdateMouseCursorPosition();
 
         // Move to right click location
         if (Input.GetMouseButtonDown(1))
@@ -131,6 +126,23 @@ public class Leader : MonoBehaviour
         {
             walkTargetUI.gameObject.SetActive(false);
         }
+    }
+
+    void UpdateMouseCursorPosition()
+    {
+        // Update mouse aim circle
+        Physics.Raycast(mousePositionRay, out mousePositionRaycastHit, Mathf.Infinity, walkableLayer);
+        Vector3 mousePositionWorldSpace = mousePositionRaycastHit.point;
+        aim.transform.position = new Vector3(mousePositionWorldSpace.x, .6f, mousePositionWorldSpace.z);
+        // then you calculate the position of the UI element
+        // 0,0 for the canvas is at the center of the screen, whereas
+        // WorldToViewPortPoint treats the lower left corner as 0,0. Because of this,
+        // you need to subtract the height / width of the canvas * 0.5 to get the correct position.
+        Vector2 aimPositionInViewport = camera.WorldToViewportPoint(aim.transform.position);
+        Vector2 aimPositionConverted = new Vector2(
+            (aimPositionInViewport.x * canvas.sizeDelta.x) - (canvas.sizeDelta.x * 0.5f),
+            (aimPositionInViewport.y * canvas.sizeDelta.y) - (canvas.sizeDelta.y * 0.5f));
+        mousePointer.anchoredPosition = aimPositionConverted;
     }
 
     public void AddRemoveCatInventory(Cat cat)
