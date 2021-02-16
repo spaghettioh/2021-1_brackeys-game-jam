@@ -47,6 +47,14 @@ public class Cat : MonoBehaviour
         }
     }
 
+    public void ThrowCat(Vector3 target)
+    {
+        followLeader = false;
+
+
+        thrown = true;
+    }
+
     private void OnCollisionEnter(Collision collision)
     {
         thrown = false;
@@ -65,16 +73,6 @@ public class Cat : MonoBehaviour
             followLeader = true;
             leader.AddRemoveCatInventory(this);
         }
-    }
-
-    public void ThrowCat(Vector3 target)
-    {
-        followLeader = false;
-
-
-        //body.isKinematic = false;
-        body.AddForce(target * throwSpeed, ForceMode.Impulse);
-        thrown = true;
     }
 
     private void OnTriggerExit(Collider other)

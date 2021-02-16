@@ -16,6 +16,7 @@ public class Leader : MonoBehaviour
     public RectTransform walkTargetUI;
     public RectTransform mousePointer;
     public Vector3 walkTargetWorldSpace;
+    public Vector3 actionTargetWorldSpace;
     public Ray clickedRaycastPosition;
     public Ray mousePositionRay;
     public RaycastHit mousePositionRaycastHit;
@@ -46,6 +47,10 @@ public class Leader : MonoBehaviour
         Vector3 mousePositionWorldSpace = mousePositionRaycastHit.point;
         aim.transform.position = new Vector3(mousePositionWorldSpace.x, .6f, mousePositionWorldSpace.z);
 
+        // then you calculate the position of the UI element
+        // 0,0 for the canvas is at the center of the screen, whereas
+        // WorldToViewPortPoint treats the lower left corner as 0,0. Because of this,
+        // you need to subtract the height / width of the canvas * 0.5 to get the correct position.
         Vector2 aimPositionInViewport = camera.WorldToViewportPoint(aim.transform.position);
         Vector2 aimPositionConverted = new Vector2(
             (aimPositionInViewport.x * canvas.sizeDelta.x) - (canvas.sizeDelta.x * 0.5f),
@@ -55,16 +60,67 @@ public class Leader : MonoBehaviour
         // Move to right click location
         if (Input.GetMouseButtonDown(1))
         {
-            Physics.Raycast(mousePositionRay, out moveRaycastHit, Mathf.Infinity, walkableLayer);
-
-            if (Physics.Raycast(mousePositionRay, out moveRaycastHit, Mathf.Infinity, walkableLayer))
-            {
-                walkTargetWorldSpace = moveRaycastHit.point;
-                walkTargetUI.gameObject.SetActive(true);
-                leader.SetDestination(walkTargetWorldSpace);
-            }
+            Move();
         }
 
+        if (Input.GetMouseButtonDown(0))
+        {
+            Action();
+        }
+
+        UpdateWalkTargetUIPosition();
+    }
+
+    void Move()
+    {
+        Physics.Raycast(mousePositionRay, out moveRaycastHit, Mathf.Infinity, walkableLayer);
+
+        if (Physics.Raycast(mousePositionRay, out moveRaycastHit, Mathf.Infinity, walkableLayer))
+        {
+            walkTargetWorldSpace = moveRaycastHit.point;
+            walkTargetUI.gameObject.SetActive(true);
+            leader.SetDestination(walkTargetWorldSpace);
+        }
+
+        // TODO remove walk target when reached
+    }
+
+    void Action()
+    {
+        // Gather directional vector info
+        bool shootable = Physics.Raycast(mousePositionRay, out actionRaycastHit, Mathf.Infinity, walkableLayer);
+        actionTargetWorldSpace = actionRaycastHit.point;
+        //Debug.Log("Action click location: " + actionTargetWorldSpace);
+        if (shootable)
+        {
+            if (catInventory.Count > 0)
+            {
+                // Get the first cat in inventory
+                Cat catToThrow = catInventory[0];
+
+                // put cat overhead to throw it
+                catToThrow.transform.position = catSpawn.position;
+                catToThrow.body.velocity = Vector3.zero;
+
+                Vector3 direction = actionTargetWorldSpace - catToThrow.transform.position;
+                direction.Normalize();
+                //direction.y *= Mathf.Abs(Vector3.Distance(catToThrow.transform.position, actionTargetWorldSpace);
+                //Debug.Log("Direction: " + direction);
+                catToThrow.body.AddForce(direction * catToThrow.throwSpeed, ForceMode.Impulse);
+
+                catToThrow.ThrowCat(direction);
+
+                AddRemoveCatInventory(catToThrow);
+            }
+        }
+    }
+
+    void UpdateWalkTargetUIPosition()
+    {
+        // then you calculate the position of the UI element
+        // 0,0 for the canvas is at the center of the screen, whereas
+        // WorldToViewPortPoint treats the lower left corner as 0,0. Because of this,
+        // you need to subtract the height / width of the canvas * 0.5 to get the correct position.
         Vector2 movePositionInViewport = camera.WorldToViewportPoint(walkTargetWorldSpace);
         Vector2 movePositionConverted = new Vector2(
             (movePositionInViewport.x * canvas.sizeDelta.x) - (canvas.sizeDelta.x * 0.5f),
@@ -75,62 +131,6 @@ public class Leader : MonoBehaviour
         {
             walkTargetUI.gameObject.SetActive(false);
         }
-
-        if (Input.GetMouseButtonDown(0))
-        {
-            if (Physics.Raycast(mousePositionRay, out actionRaycastHit, Mathf.Infinity, walkableLayer))
-            {
-                if (catInventory.Count > 0)
-                {
-                    Cat catToThrow = catInventory[0];
-
-                    catToThrow.transform.position = catSpawn.position;
-
-                    Debug.Log(mousePositionRay.origin);
-                    Debug.Log(actionRaycastHit.point);
-
-                    Vector3 throwToward = mousePositionRay.origin;
-                    Vector2 direction = (Vector2)(Input.mousePosition - throwToward);
-                    direction.Normalize();
-
-
-                    catToThrow.ThrowCat(direction);
-                    //body.isKinematic = false;
-                    catToThrow.body.AddForce(direction * catToThrow.throwSpeed, ForceMode.Impulse);
-
-                    AddRemoveCatInventory(catToThrow);
-                }
-
-            }
-        }
-
-
-
-
-
-
-
-
-
-        //UpdateWalkTargetUIPosition();
-    }
-
-    void Move()
-    {
-
-
-        // TODO remove walk target when reached
-    }
-
-    void UpdateWalkTargetUIPosition()
-    {
-        Vector3 targetPositionScreenPoint = camera.WorldToViewportPoint(walkTargetWorldSpace);
-        //Debug.Log("Walk target: " + walkTargetWorldSpace);
-        //Debug.Log("TargetScreenPoint: " + targetPositionScreenPoint);
-        walkTargetUI.anchoredPosition = targetPositionScreenPoint;
-    }
-    void Action()
-    {
     }
 
     public void AddRemoveCatInventory(Cat cat)
