@@ -33,6 +33,13 @@ public class Leader : MonoBehaviour
     [SerializeField]
     Transform catSpawn;
 
+    [SerializeField]
+    FloatVariable slowCatCount;
+    [SerializeField]
+    FloatVariable averageCatCount;
+    [SerializeField]
+    FloatVariable fastCatCount;
+
 
 
     private void Start()
@@ -43,6 +50,13 @@ public class Leader : MonoBehaviour
 
         // Turn off the UI elements
         walkTargetUI.gameObject.SetActive(false);
+        //Set Cursor to not be visible
+        Cursor.visible = false;
+
+        // Reset some global stuff
+        slowCatCount.Value = 0;
+        averageCatCount.Value = 0;
+        fastCatCount.Value = 0;
     }
 
 
@@ -76,8 +90,6 @@ public class Leader : MonoBehaviour
             walkTargetUI.gameObject.SetActive(true);
             leader.SetDestination(walkTargetWorldSpace);
         }
-
-        // TODO remove walk target when reached
     }
 
     void Action()
@@ -122,6 +134,7 @@ public class Leader : MonoBehaviour
             (movePositionInViewport.y * canvas.sizeDelta.y) - (canvas.sizeDelta.y * 0.5f));
         walkTargetUI.anchoredPosition = movePositionConverted;
 
+        // Remove target when reached
         if (transform.position.x == walkTargetWorldSpace.x && transform.position.z == walkTargetWorldSpace.z)
         {
             walkTargetUI.gameObject.SetActive(false);
@@ -133,12 +146,12 @@ public class Leader : MonoBehaviour
         // Update mouse aim circle
         Physics.Raycast(mousePositionRay, out mousePositionRaycastHit, Mathf.Infinity, walkableLayer);
         Vector3 mousePositionWorldSpace = mousePositionRaycastHit.point;
-        aim.transform.position = new Vector3(mousePositionWorldSpace.x, .6f, mousePositionWorldSpace.z);
+        //aim.transform.position = new Vector3(mousePositionWorldSpace.x, .6f, mousePositionWorldSpace.z);
         // then you calculate the position of the UI element
         // 0,0 for the canvas is at the center of the screen, whereas
         // WorldToViewPortPoint treats the lower left corner as 0,0. Because of this,
         // you need to subtract the height / width of the canvas * 0.5 to get the correct position.
-        Vector2 aimPositionInViewport = camera.WorldToViewportPoint(aim.transform.position);
+        Vector2 aimPositionInViewport = camera.WorldToViewportPoint(mousePositionWorldSpace);
         Vector2 aimPositionConverted = new Vector2(
             (aimPositionInViewport.x * canvas.sizeDelta.x) - (canvas.sizeDelta.x * 0.5f),
             (aimPositionInViewport.y * canvas.sizeDelta.y) - (canvas.sizeDelta.y * 0.5f));
@@ -150,10 +163,29 @@ public class Leader : MonoBehaviour
         if (!catInventory.Contains(cat))
         {
             catInventory.Add(cat);
+            ChangeInventory(cat.catType, 1);
+
         }
         else
         {
             catInventory.Remove(cat);
+            ChangeInventory(cat.catType, -1);
+        }
+    }
+
+    void ChangeInventory(CatType type, float change)
+    {
+        if (type == CatType.Slow)
+        {
+            slowCatCount.Value += change;
+        }
+        if (type == CatType.Average)
+        {
+            averageCatCount.Value += change;
+        }
+        if (type == CatType.Fast)
+        {
+            fastCatCount.Value += change;
         }
     }
 }

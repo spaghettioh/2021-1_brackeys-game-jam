@@ -3,18 +3,27 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
+public enum CatType { Slow, Average, Fast }
+
 public class Cat : MonoBehaviour
 {
     Leader leader;
+    [HideInInspector]
     public bool followLeader;
     NavMeshAgent agent;
     [HideInInspector]
     public Rigidbody body;
+    [HideInInspector]
     public float throwSpeed;
+    [HideInInspector]
     public float moveSpeed;
+    [HideInInspector]
     public bool thrown;
+    [HideInInspector]
     public bool isFollowing;
+    [HideInInspector]
     public bool nearLeader;
+    public CatType catType = new CatType();
 
     private void Start()
     {
@@ -22,6 +31,22 @@ public class Cat : MonoBehaviour
         body = GetComponent<Rigidbody>();
 
         leader = FindObjectOfType<Leader>();
+
+        if (catType == CatType.Slow)
+        {
+            moveSpeed = 3;
+            throwSpeed = 10;
+        }
+        if (catType == CatType.Average)
+        {
+            moveSpeed = 6;
+            throwSpeed = 20;
+        }
+        if (catType == CatType.Fast)
+        {
+            moveSpeed = 9;
+            throwSpeed = 30;
+        }
     }
 
     private void Update()
