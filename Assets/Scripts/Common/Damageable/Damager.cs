@@ -44,9 +44,8 @@ namespace Common.Damageable
 
         private bool CheckForHitbox(Collider c)
         {
-            if (hitableLayers == (hitableLayers | (1<<c.gameObject.layer)))
+            if (hitableLayers == (hitableLayers | (1 << c.gameObject.layer)))
             {
-                Debug.Log(name + " hit " + (hitableLayers | (1 << c.gameObject.layer)));
                 if (c.gameObject.GetComponent<Damageable>())
                 {
                     Damageable d = c.gameObject.GetComponent<Damageable>();

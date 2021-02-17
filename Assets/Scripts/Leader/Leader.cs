@@ -13,6 +13,8 @@ public class Leader : MonoBehaviour
     [SerializeField]
     FloatVariable catsInInventory;
     [SerializeField]
+    FloatVariable UIActionPosition;
+    [SerializeField]
     List<Cat> catInventory = new List<Cat>();
 
 
@@ -41,7 +43,8 @@ public class Leader : MonoBehaviour
         Cursor.visible = false;
 
         // Reset some global stuff
-        catsInInventory.Value = 0;
+        catsInInventory.SetValue(0);
+        UIActionPosition.SetValue(-1);
     }
 
 
@@ -60,6 +63,11 @@ public class Leader : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             Action();
+        }
+
+        if(Input.mouseScrollDelta.y != 0)
+        {
+            ChangeActionUI(Input.mouseScrollDelta.y);
         }
 
         // Keep the walk UI updated as the leader moves
@@ -101,6 +109,11 @@ public class Leader : MonoBehaviour
                 catToThrow.ThrowCat(catSpawn.position, direction);
             }
         }
+    }
+
+    void ChangeActionUI(float scrollAmount)
+    {
+        UIActionPosition.Value += Mathf.Sign(scrollAmount);
     }
 
     void UpdateWalkTargetUIPosition()
