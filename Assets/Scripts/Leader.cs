@@ -21,7 +21,6 @@ public class Leader : MonoBehaviour
     RectTransform mousePointer;
 
     Vector3 walkTargetWorldSpace;
-    Vector3 actionTargetWorldSpace;
     Ray mousePositionRay;
     RaycastHit mousePositionRaycastHit;
     RaycastHit moveRaycastHit;
@@ -34,11 +33,7 @@ public class Leader : MonoBehaviour
     Transform catSpawn;
 
     [SerializeField]
-    FloatVariable slowCatCount;
-    [SerializeField]
-    FloatVariable averageCatCount;
-    [SerializeField]
-    FloatVariable fastCatCount;
+    FloatVariable catsInInventory;
 
 
 
@@ -54,9 +49,7 @@ public class Leader : MonoBehaviour
         Cursor.visible = false;
 
         // Reset some global stuff
-        slowCatCount.Value = 0;
-        averageCatCount.Value = 0;
-        fastCatCount.Value = 0;
+        catsInInventory.Value = 0;
     }
 
 
@@ -82,13 +75,15 @@ public class Leader : MonoBehaviour
 
     void Move()
     {
-        Physics.Raycast(mousePositionRay, out moveRaycastHit, Mathf.Infinity, walkableLayer);
+        bool walkable = Physics.Raycast(mousePositionRay, out moveRaycastHit, Mathf.Infinity, walkableLayer);
 
-        if (Physics.Raycast(mousePositionRay, out moveRaycastHit, Mathf.Infinity, walkableLayer))
+        if (walkable)
         {
             walkTargetWorldSpace = moveRaycastHit.point;
-            walkTargetUI.gameObject.SetActive(true);
             leader.SetDestination(walkTargetWorldSpace);
+
+            // Turn on the walk target
+            walkTargetUI.gameObject.SetActive(true);
         }
     }
 
@@ -96,8 +91,8 @@ public class Leader : MonoBehaviour
     {
         // Gather directional vector info
         bool shootable = Physics.Raycast(mousePositionRay, out actionRaycastHit, Mathf.Infinity, walkableLayer);
-        actionTargetWorldSpace = actionRaycastHit.point;
-        //Debug.Log("Action click location: " + actionTargetWorldSpace);
+        Vector3 actionTargetWorldSpace = actionRaycastHit.point;
+
         if (shootable)
         {
             if (catInventory.Count > 0)
@@ -105,19 +100,11 @@ public class Leader : MonoBehaviour
                 // Get the first cat in inventory
                 Cat catToThrow = catInventory[0];
 
-                // put cat overhead to throw it
-                catToThrow.transform.position = catSpawn.position;
-                catToThrow.body.velocity = Vector3.zero;
-
+                // Set direction based on mouse input
                 Vector3 direction = actionTargetWorldSpace - catToThrow.transform.position;
                 direction.Normalize();
-                //direction.y *= Mathf.Abs(Vector3.Distance(catToThrow.transform.position, actionTargetWorldSpace);
-                //Debug.Log("Direction: " + direction);
-                catToThrow.body.AddForce(direction * catToThrow.throwSpeed, ForceMode.Impulse);
 
-                catToThrow.ThrowCat(direction);
-
-                AddRemoveCatInventory(catToThrow);
+                catToThrow.ThrowCat(catSpawn.position, direction);
             }
         }
     }
@@ -163,29 +150,13 @@ public class Leader : MonoBehaviour
         if (!catInventory.Contains(cat))
         {
             catInventory.Add(cat);
-            ChangeInventory(cat.catType, 1);
+            catsInInventory.Value += 1;
 
         }
         else
         {
             catInventory.Remove(cat);
-            ChangeInventory(cat.catType, -1);
-        }
-    }
-
-    void ChangeInventory(CatType type, float change)
-    {
-        if (type == CatType.Slow)
-        {
-            slowCatCount.Value += change;
-        }
-        if (type == CatType.Average)
-        {
-            averageCatCount.Value += change;
-        }
-        if (type == CatType.Fast)
-        {
-            fastCatCount.Value += change;
+            catsInInventory.Value -= 1;
         }
     }
 }
