@@ -18,12 +18,10 @@ public class Leader : MonoBehaviour
     FloatVariable UIActionPosition;
     [SerializeField]
     List<Cat> catInventory = new List<Cat>();
-
+    // Laser pointer
+    LaserPointer laserPointer;
     [SerializeField]
-    LineRenderer laserPointer;
-    [SerializeField]
-    GameObject laserPointerDot;
-
+    Vector3Variable laserPointerBeamPoint;
 
     [Header("UI elements")]
     [SerializeField]
@@ -43,7 +41,8 @@ public class Leader : MonoBehaviour
         /// Grab some components
         agent = GetComponent<NavMeshAgent>();
         camera = Camera.main;
-
+        laserPointer = GetComponentInChildren<LaserPointer>();
+        
         // Turn off some visual stuff
         walkTargetUI.gameObject.SetActive(false);
         Cursor.visible = false;
@@ -53,6 +52,7 @@ public class Leader : MonoBehaviour
         catsInInventory.SetValue(0);
         UIActionPosition.SetValue(-1);
         laserPointerBattery.SetValue(100);
+        laserPointerBeamPoint.SetValue(Vector3.zero);
     }
 
 
@@ -72,12 +72,9 @@ public class Leader : MonoBehaviour
             // Point the laser while holding the button
             if (Input.GetMouseButton(0))
             {
-                ShineLaser();
+                laserPointer.ShineLaser(mousePositionRay, walkableLayer);
             }
-            else
-            {
-                laserPointer.gameObject.SetActive(false);
-            }
+
         }
         else if (UIActionPosition.Value == 1)
         {
@@ -109,35 +106,6 @@ public class Leader : MonoBehaviour
 
             // Turn on the walk target UI
             walkTargetUI.gameObject.SetActive(true);
-        }
-    }
-
-    void ShineLaser()
-    {
-        // Get the mouse coordinates in world space
-        Physics.Raycast(mousePositionRay, out RaycastHit mousePositionHit, Mathf.Infinity, walkableLayer);
-        // This is where the laser beam should land
-        Vector3 laserPointerTargetWorldSpace = mousePositionHit.point;
-        // Ray needs a direction, not a target
-        Vector3 laserPointerDirection = laserPointerTargetWorldSpace - laserPointer.gameObject.transform.position;
-        // Make a new ray to cast
-        Ray laserPointerRay = new Ray(laserPointer.gameObject.transform.position, laserPointerDirection);
-        // Capture the first impact for use by line renderer
-        Physics.Raycast(laserPointerRay, out RaycastHit laserPointerHit, Mathf.Infinity, walkableLayer);
-
-
-        // TODO Laser point hit is what should catch cat's attention
-
-        if (laserPointerBattery.Value > 0)
-        {
-            laserPointer.gameObject.SetActive(true);
-            // LR uses world space, but position is local
-            laserPointer.SetPosition(0, laserPointer.transform.position);
-            laserPointer.SetPosition(1, laserPointerHit.point);
-            Vector3 dotPosition = new Vector3(laserPointerHit.point.x, laserPointerHit.point.y, laserPointerHit.point.z - .1f);
-            laserPointerDot.transform.position = dotPosition;
-
-            laserPointerBattery.ChangeValue(-Time.deltaTime);
         }
     }
 
