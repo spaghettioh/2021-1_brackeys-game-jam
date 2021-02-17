@@ -4,24 +4,24 @@ using Common.FSM;
 public class CatState_Damaged : State
 {
     public Cat Cat { get { return (Cat)Machine; } }
-    Color startingColor;
+    Color originalColor;
 
     public override void Enter()
     {
         base.Enter();
-        startingColor = Cat.material.color;
+
+        originalColor = Cat.material.color;
+        Cat.body.freezeRotation = false;
+        Cat.body.AddTorque(Vector3.one * Random.Range(0, 1) * 100, ForceMode.VelocityChange);
+        Cat.StartCoroutine(Cat.ChangeInvincibilityFrameColor());
     }
 
     public override void Update()
     {
         base.Update();
-        if (Cat.damageable.invincible)
+        if (!Cat.damageable.invincible)
         {
-            Cat.material.color = Color.red;
-            Cat.material.color = startingColor;
-        }
-        else
-        {
+            Cat.material.color = originalColor;
             Cat.ChangeState<CatState_Idle>();
         }
     }

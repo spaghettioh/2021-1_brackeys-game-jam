@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 651959427473454091}
   - component: {fileID: 4576345070932640010}
   m_Layer: 7
-  m_Name: Average cat
+  m_Name: Cat
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -149,19 +149,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHitpoints: 6
   hitpoints: 6
-  hitbox: {fileID: 4695127654014498519, guid: 5540f95c94cde496bb49bf676937a7ff, type: 3}
+  hitbox: {fileID: 7622571564841458364}
   OnHealthChange:
     m_PersistentCalls:
       m_Calls: []
   invincibleAfterHit: 1
-  invincibleSeconds: 1
+  invincibleSeconds: 1.5
   invincible: 0
   OnDamageTaken:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 7692209154892797142}
-        m_TargetAssemblyTypeName: Common.FSM.MachineBehaviour, Assembly-CSharp
-        m_MethodName: ChangeState
+        m_TargetAssemblyTypeName: Cat, Assembly-CSharp
+        m_MethodName: TakeDamage
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

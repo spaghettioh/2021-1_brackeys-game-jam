@@ -1,7 +1,5 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
 using Common.Damageable;
 using Common.FSM;
 
@@ -15,7 +13,6 @@ public class Cat : MachineBehaviour
 
     [HideInInspector]
     public Material material;
-    Color originalColor;
 
     [HideInInspector]
     public Leader leader;
@@ -40,7 +37,6 @@ public class Cat : MachineBehaviour
         body = GetComponent<Rigidbody>();
         damageable = GetComponent<Damageable>();
         material = GetComponent<MeshRenderer>().material;
-        originalColor = material.color;
 
         leader = FindObjectOfType<Leader>();
     }
@@ -65,8 +61,19 @@ public class Cat : MachineBehaviour
     /// <summary>
     /// Should be used only by the Damageable OnDamage event
     /// </summary>
-    public void Damaged()
+    public void TakeDamage()
     {
         ChangeState<CatState_Damaged>();
+    }
+
+    public IEnumerator ChangeInvincibilityFrameColor()
+    {
+        while (damageable.invincible)
+        {
+            material.color = Color.red;
+            yield return new WaitForSeconds(.15f);
+            material.color = Color.yellow;
+            yield return new WaitForSeconds(.15f);
+        }
     }
 }
