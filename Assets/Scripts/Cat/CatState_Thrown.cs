@@ -19,9 +19,9 @@ public class CatState_Thrown : State
 
         // Throw the cat and release rotation lock
         Cat.body.freezeRotation = false;
-        // TODO fix this
+        // TODO make this work
         Cat.body.AddTorque(Vector3.one * Random.Range(0, 1) * 100, ForceMode.VelocityChange);
-        Cat.body.AddForce(direction * Cat.throwSpeed, ForceMode.Impulse);
+        Cat.body.AddForce(direction * Cat.throwForce, ForceMode.Impulse);
     }
 
     public override void Update()

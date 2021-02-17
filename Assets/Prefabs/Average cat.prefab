@@ -49,15 +49,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da95a44d94bd1479f920a72654b0786f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  followLeader: 0
-  followEnemy: 0
+  throwForce: 20
+  moveSpeed: 4
+  damageable: {fileID: 0}
+  material: {fileID: 0}
+  leader: {fileID: 0}
   body: {fileID: 0}
-  throwSpeed: 20
-  moveSpeed: 6
-  thrown: 0
-  isFollowing: 0
-  nearLeader: 0
-  catType: 1
+  thrownWaitTime: 3
 --- !u!33 &2253746534564641452
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -162,8 +160,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 7692209154892797142}
-        m_TargetAssemblyTypeName: Cat, Assembly-CSharp
-        m_MethodName: DamageFlash
+        m_TargetAssemblyTypeName: Common.FSM.MachineBehaviour, Assembly-CSharp
+        m_MethodName: ChangeState
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

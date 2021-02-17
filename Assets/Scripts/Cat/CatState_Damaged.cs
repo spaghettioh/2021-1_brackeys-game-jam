@@ -10,7 +10,6 @@ public class CatState_Damaged : State
     {
         base.Enter();
         startingColor = Cat.material.color;
-        Cat.DamageFlash();
     }
 
     public override void Update()

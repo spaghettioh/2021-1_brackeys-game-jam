@@ -8,6 +8,8 @@ public class CatState_Idle : State
     public override void Enter()
     {
         base.Enter();
+        Debug.Log("Entered idle");
+
         Cat.material.color = Color.red;
 
         // Reset the cat
@@ -23,6 +25,7 @@ public class CatState_Idle : State
 
     public override void OnTriggerEnter(Collider other)
     {
+        Debug.Log("Entered trigger");
         // Always follow player
         if (other.gameObject.GetComponent<Leader>())
         {

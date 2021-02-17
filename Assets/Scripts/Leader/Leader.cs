@@ -1,51 +1,43 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.UI;
 
 public class Leader : MonoBehaviour
 {
-    NavMeshAgent leader;
     [SerializeField]
     LayerMask walkableLayer;
-    //List<Vector3> hits = new List<Vector3>();
+
+    [Header("Inventory")]
+    [SerializeField]
+    Transform catSpawn;
+    [SerializeField]
+    FloatVariable catsInInventory;
     [SerializeField]
     List<Cat> catInventory = new List<Cat>();
 
+
+    [Header("UI elements")]
     [SerializeField]
     RectTransform canvas;
     [SerializeField]
     RectTransform walkTargetUI;
     [SerializeField]
-    RectTransform mousePointer;
+    RectTransform mousePointerUI;
 
-    Vector3 walkTargetWorldSpace;
+    NavMeshAgent agent;
+    Vector3 moveTargetWorldSpace;
     Ray mousePositionRay;
-    RaycastHit mousePositionRaycastHit;
-    RaycastHit moveRaycastHit;
-    RaycastHit actionRaycastHit;
     Camera camera;
-
-    [SerializeField]
-    GameObject aim;
-    [SerializeField]
-    Transform catSpawn;
-
-    [SerializeField]
-    FloatVariable catsInInventory;
-
-
 
     private void Start()
     {
         // Grab some components
-        leader = GetComponent<NavMeshAgent>();
+        agent = GetComponent<NavMeshAgent>();
         camera = Camera.main;
 
         // Turn off the UI elements
         walkTargetUI.gameObject.SetActive(false);
-        //Set Cursor to not be visible
+        //Set mouse cursor to not be visible
         Cursor.visible = false;
 
         // Reset some global stuff
@@ -55,9 +47,8 @@ public class Leader : MonoBehaviour
 
     void Update()
     {
+        mousePointerUI.position = Input.mousePosition;
         mousePositionRay = camera.ScreenPointToRay(Input.mousePosition);
-
-        UpdateMouseCursorPosition();
 
         // Move to right click location
         if (Input.GetMouseButtonDown(1))
@@ -65,24 +56,27 @@ public class Leader : MonoBehaviour
             Move();
         }
 
+        // Right click to perform an action
         if (Input.GetMouseButtonDown(0))
         {
             Action();
         }
 
+        // Keep the walk UI updated as the leader moves
         UpdateWalkTargetUIPosition();
     }
 
     void Move()
     {
-        bool walkable = Physics.Raycast(mousePositionRay, out moveRaycastHit, Mathf.Infinity, walkableLayer);
+        // Check to see if the click was on the nav mesh
+        bool walkable = Physics.Raycast(mousePositionRay, out RaycastHit moveRaycastHit, Mathf.Infinity, walkableLayer);
 
         if (walkable)
         {
-            walkTargetWorldSpace = moveRaycastHit.point;
-            leader.SetDestination(walkTargetWorldSpace);
+            moveTargetWorldSpace = moveRaycastHit.point;
+            agent.SetDestination(moveTargetWorldSpace);
 
-            // Turn on the walk target
+            // Turn on the walk target UI
             walkTargetUI.gameObject.SetActive(true);
         }
     }
@@ -90,7 +84,7 @@ public class Leader : MonoBehaviour
     void Action()
     {
         // Gather directional vector info
-        bool shootable = Physics.Raycast(mousePositionRay, out actionRaycastHit, Mathf.Infinity, walkableLayer);
+        bool shootable = Physics.Raycast(mousePositionRay, out RaycastHit actionRaycastHit, Mathf.Infinity, walkableLayer);
         Vector3 actionTargetWorldSpace = actionRaycastHit.point;
 
         if (shootable)
@@ -115,34 +109,17 @@ public class Leader : MonoBehaviour
         // 0,0 for the canvas is at the center of the screen, whereas
         // WorldToViewPortPoint treats the lower left corner as 0,0. Because of this,
         // you need to subtract the height / width of the canvas * 0.5 to get the correct position.
-        Vector2 movePositionInViewport = camera.WorldToViewportPoint(walkTargetWorldSpace);
-        Vector2 movePositionConverted = new Vector2(
-            (movePositionInViewport.x * canvas.sizeDelta.x) - (canvas.sizeDelta.x * 0.5f),
-            (movePositionInViewport.y * canvas.sizeDelta.y) - (canvas.sizeDelta.y * 0.5f));
-        walkTargetUI.anchoredPosition = movePositionConverted;
+        Vector2 moveTargetPositionInViewport = camera.WorldToViewportPoint(moveTargetWorldSpace);
+        Vector2 moveTargetUIPosition = new Vector2(
+            (moveTargetPositionInViewport.x * canvas.sizeDelta.x) - (canvas.sizeDelta.x * 0.5f),
+            (moveTargetPositionInViewport.y * canvas.sizeDelta.y) - (canvas.sizeDelta.y * 0.5f));
+        walkTargetUI.anchoredPosition = moveTargetUIPosition;
 
         // Remove target when reached
-        if (transform.position.x == walkTargetWorldSpace.x && transform.position.z == walkTargetWorldSpace.z)
+        if (transform.position.x == moveTargetWorldSpace.x && transform.position.z == moveTargetWorldSpace.z)
         {
             walkTargetUI.gameObject.SetActive(false);
         }
-    }
-
-    void UpdateMouseCursorPosition()
-    {
-        // Update mouse aim circle
-        Physics.Raycast(mousePositionRay, out mousePositionRaycastHit, Mathf.Infinity, walkableLayer);
-        Vector3 mousePositionWorldSpace = mousePositionRaycastHit.point;
-        //aim.transform.position = new Vector3(mousePositionWorldSpace.x, .6f, mousePositionWorldSpace.z);
-        // then you calculate the position of the UI element
-        // 0,0 for the canvas is at the center of the screen, whereas
-        // WorldToViewPortPoint treats the lower left corner as 0,0. Because of this,
-        // you need to subtract the height / width of the canvas * 0.5 to get the correct position.
-        Vector2 aimPositionInViewport = camera.WorldToViewportPoint(mousePositionWorldSpace);
-        Vector2 aimPositionConverted = new Vector2(
-            (aimPositionInViewport.x * canvas.sizeDelta.x) - (canvas.sizeDelta.x * 0.5f),
-            (aimPositionInViewport.y * canvas.sizeDelta.y) - (canvas.sizeDelta.y * 0.5f));
-        mousePointer.anchoredPosition = aimPositionConverted;
     }
 
     public void AddRemoveCatInventory(Cat cat)
@@ -151,7 +128,6 @@ public class Leader : MonoBehaviour
         {
             catInventory.Add(cat);
             catsInInventory.Value += 1;
-
         }
         else
         {

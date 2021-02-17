@@ -7,6 +7,9 @@ using Common.FSM;
 
 public class Cat : MachineBehaviour
 {
+    public float throwForce;
+    public float moveSpeed;
+
     [HideInInspector]
     public Damageable damageable;
 
@@ -17,22 +20,7 @@ public class Cat : MachineBehaviour
     [HideInInspector]
     public Leader leader;
     [HideInInspector]
-    public bool followLeader;
-    public bool followEnemy;
-    GameObject followTarget;
-    NavMeshAgent agent;
-    [HideInInspector]
     public Rigidbody body;
-    [HideInInspector]
-    public float throwSpeed;
-    //[HideInInspector]
-    public float moveSpeed;
-    [HideInInspector]
-    public bool thrown;
-    [HideInInspector]
-    public bool isFollowing;
-    [HideInInspector]
-    public bool nearLeader;
 
     public float thrownWaitTime = 3;
 
@@ -49,16 +37,12 @@ public class Cat : MachineBehaviour
     public override void Start()
     {
         base.Start();
-        agent = GetComponent<NavMeshAgent>();
         body = GetComponent<Rigidbody>();
         damageable = GetComponent<Damageable>();
         material = GetComponent<MeshRenderer>().material;
         originalColor = material.color;
 
         leader = FindObjectOfType<Leader>();
-
-        moveSpeed = 5;
-        throwSpeed = 20;
     }
 
     public void ThrowCat(Vector3 startPosition, Vector3 direction)
@@ -78,17 +62,11 @@ public class Cat : MachineBehaviour
         Destroy(this);
     }
 
-
-    public void DamageFlash()
+    /// <summary>
+    /// Should be used only by the Damageable OnDamage event
+    /// </summary>
+    public void Damaged()
     {
-        StartCoroutine(DamageFlasher());
+        ChangeState<CatState_Damaged>();
     }
-
-    IEnumerator DamageFlasher()
-    {
-        material.color = Color.red;
-        yield return new WaitForSeconds(damageable.invincibleSeconds);
-        material.color = originalColor;
-    }
-
 }
