@@ -46,7 +46,7 @@ public class Leader : MonoBehaviour
         // Turn off some visual stuff
         walkTargetUI.gameObject.SetActive(false);
         Cursor.visible = false;
-        laserPointer.gameObject.SetActive(false);
+        //laserPointer.gameObject.SetActive(false);
 
         // Reset some global stuff
         catsInInventory.SetValue(0);
@@ -72,9 +72,20 @@ public class Leader : MonoBehaviour
             // Point the laser while holding the button
             if (Input.GetMouseButton(0))
             {
-                laserPointer.ShineLaser(mousePositionRay, walkableLayer);
+                if (laserPointerBattery.Value > 0)
+                {
+                    laserPointer.Shine(mousePositionRay, walkableLayer);
+                }
+                else
+                {
+                    laserPointer.TurnOff();
+                }
             }
 
+            if (Input.GetMouseButtonUp(0))
+            {
+                laserPointer.TurnOff();
+            }
         }
         else if (UIActionPosition.Value == 1)
         {
