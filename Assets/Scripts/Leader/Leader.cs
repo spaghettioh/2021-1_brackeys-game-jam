@@ -11,11 +11,18 @@ public class Leader : MonoBehaviour
     [SerializeField]
     Transform catSpawn;
     [SerializeField]
+    FloatVariable laserPointerBattery;
+    [SerializeField]
     FloatVariable catsInInventory;
     [SerializeField]
     FloatVariable UIActionPosition;
     [SerializeField]
     List<Cat> catInventory = new List<Cat>();
+
+    [SerializeField]
+    LineRenderer laserPointer;
+    [SerializeField]
+    GameObject laserPointerDot;
 
 
     [Header("UI elements")]
@@ -33,18 +40,19 @@ public class Leader : MonoBehaviour
 
     private void Start()
     {
-        // Grab some components
+        /// Grab some components
         agent = GetComponent<NavMeshAgent>();
         camera = Camera.main;
 
-        // Turn off the UI elements
+        // Turn off some visual stuff
         walkTargetUI.gameObject.SetActive(false);
-        //Set mouse cursor to not be visible
         Cursor.visible = false;
+        laserPointer.gameObject.SetActive(false);
 
         // Reset some global stuff
         catsInInventory.SetValue(0);
         UIActionPosition.SetValue(-1);
+        laserPointerBattery.SetValue(100);
     }
 
 
@@ -59,10 +67,25 @@ public class Leader : MonoBehaviour
             Move();
         }
 
-        // Right click to perform an action
-        if (Input.GetMouseButtonDown(0))
+        if (UIActionPosition.Value == -1)
         {
-            Action();
+            // Point the laser while holding the button
+            if (Input.GetMouseButton(0))
+            {
+                ShineLaser();
+            }
+            else
+            {
+                laserPointer.gameObject.SetActive(false);
+            }
+        }
+        else if (UIActionPosition.Value == 1)
+        {
+            // Right click to perform an action
+            if (Input.GetMouseButtonDown(0))
+            {
+                ThrowCatFromInventory();
+            }
         }
 
         if(Input.mouseScrollDelta.y != 0)
@@ -89,7 +112,36 @@ public class Leader : MonoBehaviour
         }
     }
 
-    void Action()
+    void ShineLaser()
+    {
+        // Get the mouse coordinates in world space
+        Physics.Raycast(mousePositionRay, out RaycastHit mousePositionHit, Mathf.Infinity, walkableLayer);
+        // This is where the laser beam should land
+        Vector3 laserPointerTargetWorldSpace = mousePositionHit.point;
+        // Ray needs a direction, not a target
+        Vector3 laserPointerDirection = laserPointerTargetWorldSpace - laserPointer.gameObject.transform.position;
+        // Make a new ray to cast
+        Ray laserPointerRay = new Ray(laserPointer.gameObject.transform.position, laserPointerDirection);
+        // Capture the first impact for use by line renderer
+        Physics.Raycast(laserPointerRay, out RaycastHit laserPointerHit, Mathf.Infinity, walkableLayer);
+
+
+        // TODO Laser point hit is what should catch cat's attention
+
+        if (laserPointerBattery.Value > 0)
+        {
+            laserPointer.gameObject.SetActive(true);
+            // LR uses world space, but position is local
+            laserPointer.SetPosition(0, laserPointer.transform.position);
+            laserPointer.SetPosition(1, laserPointerHit.point);
+            Vector3 dotPosition = new Vector3(laserPointerHit.point.x, laserPointerHit.point.y, laserPointerHit.point.z - .1f);
+            laserPointerDot.transform.position = dotPosition;
+
+            laserPointerBattery.ChangeValue(-Time.deltaTime);
+        }
+    }
+
+    void ThrowCatFromInventory()
     {
         // Gather directional vector info
         bool shootable = Physics.Raycast(mousePositionRay, out RaycastHit actionRaycastHit, Mathf.Infinity, walkableLayer);
@@ -113,7 +165,7 @@ public class Leader : MonoBehaviour
 
     void ChangeActionUI(float scrollAmount)
     {
-        UIActionPosition.Value += Mathf.Sign(scrollAmount);
+        UIActionPosition.SetValue(Mathf.Sign(scrollAmount));
     }
 
     void UpdateWalkTargetUIPosition()

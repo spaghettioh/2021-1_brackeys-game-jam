@@ -22,7 +22,7 @@ public class InventoryUI : MonoBehaviour
 
     void Update()
     {
-        batteryChargeUI.text = catsInInventory.Value + "%";
+        batteryChargeUI.text = Mathf.Round(batteryCharge.Value) + "%";
         catsInInventoryUI.text = catsInInventory.Value.ToString();
 
         if (UI_ActionPosition.Value == -1)
