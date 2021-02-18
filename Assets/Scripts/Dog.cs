@@ -26,7 +26,7 @@ public class Dog : MonoBehaviour
 
     public void KillDog()
     {
-        Destroy(this);
+        Destroy(gameObject);
     }
 
     public void DamageFlash()

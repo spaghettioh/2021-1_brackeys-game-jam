@@ -9,7 +9,9 @@ public class Cat : MachineBehaviour
     public float moveSpeed;
 
     public Vector3Variable laserPointerHitWorldSpace;
-    public string following;
+    public bool followLeader;
+    public bool followLaser;
+    public string previouslyFollowing;
     public Vector3 followPosition;
 
     [HideInInspector]
@@ -60,11 +62,12 @@ public class Cat : MachineBehaviour
 
         // Remove cat from leader inventory
         leader.AddRemoveCatInventory(this);
+        followLeader = false;
     }
 
     public void KillMe()
     {
-        Destroy(this);
+        Destroy(gameObject);
     }
 
     /// <summary>
@@ -85,4 +88,39 @@ public class Cat : MachineBehaviour
             yield return new WaitForSeconds(.15f);
         }
     }
+
+    public override void OnTriggerEnter(Collider collider)
+    {
+        // Follow player
+        if (collider.gameObject.GetComponent<Leader>())
+        {
+            followLeader = true;
+            leader.AddRemoveCatInventory(this);
+        }
+
+        // Follow laser
+        if (collider.gameObject.GetComponent<LaserPointer>())
+        {
+            followLaser = true;
+        }
+    }
+
+    public override void OnTriggerExit(Collider collider)
+    {
+        // Follow player
+        if (collider.gameObject.GetComponent<Leader>())
+        {
+            followLeader = false;
+            leader.AddRemoveCatInventory(this);
+        }
+
+        // Stop following laser
+        if (collider.gameObject.GetComponent<LaserPointer>())
+        {
+            Vector3 laserLastKnownPosition = laserPointerHitWorldSpace.Value;
+            followPosition = laserLastKnownPosition;
+            followLaser = false;
+        }
+    }
+
 }

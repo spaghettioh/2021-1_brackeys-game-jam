@@ -22,7 +22,7 @@ public class CatState_Damaged : State
         if (!Cat.damageable.invincible)
         {
             Cat.material.color = originalColor;
-            Cat.ChangeState<CatState_Idle>();
+            Cat.ChangeState<CatState_Follow>();
         }
     }
 }

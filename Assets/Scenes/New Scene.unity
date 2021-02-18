@@ -1955,7 +1955,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e6d470d2cbe641d3bd2918cbb241de3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shine: 0
+  AOE: 0
   canvas: {fileID: 1022206035}
   dotUI: {fileID: 1666308235}
   batteryLevel: {fileID: 11400000, guid: 9b24232491c4d4e20971c6b1786c19c1, type: 2}
@@ -1971,7 +1971,7 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 3
+  m_Radius: 3.5
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1554633258
 GameObject:
@@ -3030,7 +3030,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
   m_Shadows:
-    m_Type: 2
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1

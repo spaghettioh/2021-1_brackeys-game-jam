@@ -71,14 +71,13 @@ public class LaserPointer : MonoBehaviour
                 (moveTargetPositionInViewport.x * canvas.sizeDelta.x) - (canvas.sizeDelta.x * 0.5f),
                 (moveTargetPositionInViewport.y * canvas.sizeDelta.y) - (canvas.sizeDelta.y * 0.5f));
             dotUI.anchoredPosition = moveTargetUIPosition;
-
         }
     }
 
     public void Shine(Ray mouse, LayerMask layer)
     {
         beam.enabled = true;
-        collider.radius = 4;
+        collider.radius = 6;
         dotUI.gameObject.SetActive(true);
 
         mousePositionRay = mouse;
@@ -90,5 +89,6 @@ public class LaserPointer : MonoBehaviour
         beam.enabled = false;
         collider.radius = 0;
         dotUI.gameObject.SetActive(false);
+        hitWorldSpace.SetValue(Vector3.zero);
     }
 }
