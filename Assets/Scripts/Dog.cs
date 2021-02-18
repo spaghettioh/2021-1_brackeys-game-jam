@@ -16,28 +16,29 @@ public class Dog : MonoBehaviour
         damageable = GetComponent<Damageable>();
         material = GetComponent<MeshRenderer>().material;
         originalColor = material.color;
-
-        //while (damageable.invincible)
-        //{
-        //    material.color = Color.red;
-        //    material.color = originalColor;
-        //}
     }
 
-    public void KillDog()
+    public void KillMe()
     {
         Destroy(gameObject);
     }
 
     public void DamageFlash()
     {
-        StartCoroutine(DamageFlasher());
+        StartCoroutine(ChangeInvincibilityFrameColor());
     }
 
-    IEnumerator DamageFlasher()
+    public IEnumerator ChangeInvincibilityFrameColor()
     {
-        material.color = Color.red;
-        yield return new WaitForSeconds(damageable.invincibleSeconds);
-        material.color = originalColor;
+        while (damageable.invincible)
+        {
+            Debug.Log("foo");
+            material.color = Color.red;
+            yield return new WaitForSeconds(.15f);
+            material.color = Color.yellow;
+            yield return new WaitForSeconds(.15f);
+            material.color = originalColor;
+        }
     }
+
 }

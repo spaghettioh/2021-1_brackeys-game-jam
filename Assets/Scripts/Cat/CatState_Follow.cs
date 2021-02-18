@@ -8,6 +8,7 @@ public class CatState_Follow : State
     public override void Enter()
     {
         base.Enter();
+        Cat.body.freezeRotation = true;
     }
 
     public override void Update()
@@ -41,5 +42,11 @@ public class CatState_Follow : State
     void Chase(Vector3 position, float addMoveSpeed)
     {
         Cat.transform.position = Vector3.MoveTowards(Cat.transform.position, position, Time.deltaTime * (Cat.moveSpeed + addMoveSpeed));
+    }
+
+    public override void Exit()
+    {
+        base.Exit();
+        Cat.body.freezeRotation = false;
     }
 }

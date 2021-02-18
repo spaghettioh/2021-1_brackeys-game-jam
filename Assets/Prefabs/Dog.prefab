@@ -152,7 +152,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 5225772666763568645}
         m_TargetAssemblyTypeName: Dog, Assembly-CSharp
-        m_MethodName: KillDog
+        m_MethodName: KillMe
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

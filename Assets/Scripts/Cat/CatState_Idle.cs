@@ -12,9 +12,9 @@ public class CatState_Idle : State
         Cat.material.color = Color.grey;
 
         // Reset the cat
-        Cat.transform.rotation = Quaternion.Euler(0, 0, 0);
-        Cat.body.velocity = Vector3.zero;
-        Cat.body.freezeRotation = true;
+        //Cat.transform.rotation = Quaternion.Euler(0, 0, 0);
+        //Cat.body.velocity = Vector3.zero;
+        //Cat.body.freezeRotation = true;
     }
 
     public override void Update()

@@ -42,14 +42,9 @@ public class Cat : MachineBehaviour
         base.Start();
         body = GetComponent<Rigidbody>();
         damageable = GetComponent<Damageable>();
-        material = GetComponent<MeshRenderer>().material;
+        material = GetComponentInChildren<MeshRenderer>().material;
 
         leader = FindObjectOfType<Leader>();
-    }
-
-    public override void Update()
-    {
-        base.Update();
     }
 
     public void ThrowCat(Vector3 startPosition, Vector3 direction)
@@ -57,12 +52,9 @@ public class Cat : MachineBehaviour
         // Put cat overhead to throw
         transform.position = startPosition;
         body.velocity = Vector3.zero;
+
         GetState<CatState_Thrown>().direction = direction;
         ChangeState<CatState_Thrown>();
-
-        // Remove cat from leader inventory
-        leader.AddRemoveCatInventory(this);
-        followLeader = false;
     }
 
     public void KillMe()
@@ -71,11 +63,19 @@ public class Cat : MachineBehaviour
     }
 
     /// <summary>
-    /// Should be used only by the Damageable OnDamage event
+    /// Should be used only by a Damageable event
     /// </summary>
     public void TakeDamage()
     {
         ChangeState<CatState_Damaged>();
+    }
+
+    /// <summary>
+    /// Should be used only by a Damageable event
+    /// </summary>
+    public void RemoveFromInventory()
+    {
+        leader.AddRemoveCatInventory(this);
     }
 
     public IEnumerator ChangeInvincibilityFrameColor()
