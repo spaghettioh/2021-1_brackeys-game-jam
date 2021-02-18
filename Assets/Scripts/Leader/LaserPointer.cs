@@ -15,7 +15,6 @@ public class LaserPointer : MonoBehaviour
     FloatVariable batteryLevel;
     [SerializeField]
     Vector3Variable hitWorldSpace;
-    [SerializeField]
     SphereCollider collider;
 
     LayerMask mouseHitLayer;

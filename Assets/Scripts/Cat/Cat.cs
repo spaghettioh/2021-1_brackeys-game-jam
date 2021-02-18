@@ -24,6 +24,8 @@ public class Cat : MachineBehaviour
     public Leader leader;
     [HideInInspector]
     public Rigidbody body;
+    [HideInInspector]
+    public Animator anim;
 
     public float thrownWaitTime = 3;
 
@@ -42,7 +44,8 @@ public class Cat : MachineBehaviour
         base.Start();
         body = GetComponent<Rigidbody>();
         damageable = GetComponent<Damageable>();
-        material = GetComponentInChildren<MeshRenderer>().material;
+        material = GetComponentInChildren<SkinnedMeshRenderer>().material;
+        anim = GetComponent<Animator>();
 
         leader = FindObjectOfType<Leader>();
     }
@@ -121,6 +124,28 @@ public class Cat : MachineBehaviour
             followPosition = laserLastKnownPosition;
             followLaser = false;
         }
+    }
+
+    public void SetRigidBodyState(bool state)
+    {
+        Rigidbody[] rigidbodies = GetComponentsInChildren<Rigidbody>();
+        foreach (var rb in rigidbodies)
+        {
+            rb.isKinematic = state;
+        }
+
+        GetComponent<Rigidbody>().isKinematic = !state;
+    }
+
+    public void SetColliderState(bool state)
+    {
+        Collider[] colliders = GetComponentsInChildren<Collider>();
+        foreach (var c in colliders)
+        {
+            c.enabled = state;
+        }
+
+        GetComponent<Collider>().enabled = !state;
     }
 
 }

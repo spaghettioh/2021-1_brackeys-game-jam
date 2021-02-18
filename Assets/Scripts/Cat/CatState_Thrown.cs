@@ -17,11 +17,19 @@ public class CatState_Thrown : State
         timesCollided = 0;
         timeInState = 0;
 
+        // Ragdoll it
+        Cat.anim.enabled = false;
+        Cat.SetRigidBodyState(false);
+        Cat.SetColliderState(true);
+
         // Throw the cat
         // TODO make this work
-        Cat.body.AddTorque(Vector3.one * Random.Range(0, 1) * 100, ForceMode.VelocityChange);
-        Cat.body.AddForce(direction * Cat.throwForce, ForceMode.Impulse);
+        //Cat.body.AddTorque(Vector3.one * Random.Range(0, 1) * 100, ForceMode.VelocityChange);
+        //Cat.body.AddForce(direction * Cat.throwForce, ForceMode.Impulse);
+        SetRigidBodyState();
         Cat.followLeader = false;
+
+
     }
 
     public override void Update()
@@ -40,4 +48,16 @@ public class CatState_Thrown : State
     {
         timesCollided += 1;
     }
+
+    public void SetRigidBodyState()
+    {
+        Rigidbody[] rigidbodies = Cat.GetComponentsInChildren<Rigidbody>();
+        foreach (var rb in rigidbodies)
+        {
+            rb.AddTorque(Vector3.one * Random.Range(0, 1) * 100, ForceMode.VelocityChange);
+            rb.AddForce(direction * Cat.throwForce, ForceMode.Impulse);
+        }
+    }
+
+
 }

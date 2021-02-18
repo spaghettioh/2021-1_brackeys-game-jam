@@ -8,12 +8,23 @@ public class CatState_Follow : State
     public override void Enter()
     {
         base.Enter();
-        Cat.body.freezeRotation = true;
     }
 
     public override void Update()
     {
         base.Update();
+        Vector3 lookDirection = Cat.laserPointerHitWorldSpace.Value - Cat.transform.position;
+        float rotation = Mathf.Atan2(lookDirection.x, lookDirection.z) * Mathf.Rad2Deg;
+        Cat.transform.rotation = Quaternion.Euler(0, rotation, 0);
+
+        if (Cat.body.velocity.magnitude > 0)
+        {
+            Cat.anim.Play("Run");
+        }
+        else
+        {
+            Cat.anim.Play("Idle");
+        }
 
         // Laser takes priority
         if (Cat.followLaser)

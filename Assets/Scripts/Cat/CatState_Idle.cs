@@ -15,6 +15,10 @@ public class CatState_Idle : State
         //Cat.transform.rotation = Quaternion.Euler(0, 0, 0);
         //Cat.body.velocity = Vector3.zero;
         //Cat.body.freezeRotation = true;
+        Cat.anim.enabled = true;
+        Cat.anim.Play("Idle");
+        Cat.SetRigidBodyState(true);
+        Cat.SetColliderState(false);
     }
 
     public override void Update()
@@ -26,5 +30,4 @@ public class CatState_Idle : State
             Cat.ChangeState<CatState_Follow>();
         }
     }
-
 }
