@@ -3,7 +3,15 @@ guid: 673de6ab7b52447868921aa7de6d7595
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - catSpawn: {instanceID: 0}
+  - laserPointerBattery: {fileID: 11400000, guid: 9b24232491c4d4e20971c6b1786c19c1, type: 2}
+  - catsInInventory: {fileID: 11400000, guid: 3c28b75bad9144a9d8682d938bd36fe3, type: 2}
+  - UIActionPosition: {fileID: 11400000, guid: 66ceba745e7ef4ce1a031453f50dc299, type: 2}
+  - laserPointerBeamPoint: {fileID: 11400000, guid: ff71c9e7390274e2caa276a7df38e71a, type: 2}
+  - canvas: {instanceID: 0}
+  - walkTargetUI: {instanceID: 0}
+  - mousePointerUI: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
