@@ -6,7 +6,8 @@ using UnityEngine.UI;
 public class LaserPointer : MonoBehaviour
 {
     LineRenderer beam;
-    public bool shine;
+    public float AOE;
+
 
     [SerializeField]
     RectTransform canvas;
@@ -25,9 +26,11 @@ public class LaserPointer : MonoBehaviour
     private void Start()
     {
         beam = GetComponent<LineRenderer>();
+        beam.enabled = false;
         collider = GetComponent<SphereCollider>();
-        collider.enabled = false;
+        collider.radius = 0;
         dotUI.gameObject.SetActive(false);
+
     }
 
     private void Update()
@@ -75,8 +78,9 @@ public class LaserPointer : MonoBehaviour
     public void Shine(Ray mouse, LayerMask layer)
     {
         beam.enabled = true;
-        collider.enabled = true;
+        collider.radius = 4;
         dotUI.gameObject.SetActive(true);
+
         mousePositionRay = mouse;
         walkableLayer = layer;
     }
@@ -84,7 +88,7 @@ public class LaserPointer : MonoBehaviour
     public void TurnOff()
     {
         beam.enabled = false;
-        collider.enabled = false;
+        collider.radius = 0;
         dotUI.gameObject.SetActive(false);
     }
 }

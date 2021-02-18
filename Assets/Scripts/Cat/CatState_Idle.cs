@@ -31,19 +31,12 @@ public class CatState_Idle : State
             Cat.ChangeState<CatState_Follow>();
         }
 
-    }
-
-    public override void OnTriggerStay(Collider collider)
-    {
-        if (Cat.following != "leader")
+        // Follow laser
+        if (other.gameObject.GetComponent<LaserPointer>())
         {
-            // Follow laser
-            if (collider.gameObject.GetComponent<LaserPointer>())
-            {
-                Cat.following = "laser";
-                Cat.ChangeState<CatState_Follow>();
-            }
-
+            Cat.following = "laser";
+            Cat.ChangeState<CatState_Follow>();
         }
+
     }
 }
