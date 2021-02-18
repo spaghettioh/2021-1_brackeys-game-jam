@@ -5,10 +5,8 @@ using UnityEngine.UI;
 
 public class LaserPointer : MonoBehaviour
 {
+    [SerializeField]
     LineRenderer beam;
-    public float AOE;
-
-
     [SerializeField]
     RectTransform canvas;
     [SerializeField]
@@ -17,11 +15,11 @@ public class LaserPointer : MonoBehaviour
     FloatVariable batteryLevel;
     [SerializeField]
     Vector3Variable hitWorldSpace;
-
+    [SerializeField]
     SphereCollider collider;
 
-    LayerMask walkableLayer;
-    Ray mousePositionRay;
+    LayerMask mouseHitLayer;
+    Vector3 mouseInWorldSpace;
 
     private void Start()
     {
@@ -37,30 +35,22 @@ public class LaserPointer : MonoBehaviour
     {
         if (beam.enabled)
         {
-            // Get the mouse coordinates in world space
-            Physics.Raycast(mousePositionRay, out RaycastHit mousePositionHit, Mathf.Infinity, walkableLayer);
-            // This is where the laser beam should land
-            Vector3 laserPointerTargetWorldSpace = mousePositionHit.point;
             // Ray needs a direction, not a target
-            Vector3 laserPointerDirection = laserPointerTargetWorldSpace - beam.gameObject.transform.position;
-            // Make a new ray to cast
-            Ray laserPointerRay = new Ray(beam.gameObject.transform.position, laserPointerDirection);
-            // Capture the first impact for use by line renderer
-            Physics.Raycast(laserPointerRay, out RaycastHit laserPointerHit, Mathf.Infinity, walkableLayer);
+            Vector3 laserPointerDirection = mouseInWorldSpace - transform.position;
+            // Cast the ray and capture the first impact for use by line renderer
+            Physics.Raycast(transform.position, laserPointerDirection, out RaycastHit laserPointerHit, Mathf.Infinity, mouseHitLayer);
             Vector3 dotPosition = laserPointerHit.point;
-            hitWorldSpace.SetValue(dotPosition);
 
-            // TODO Laser point hit is what should catch cat's attention
-
-            // LR uses world space, but position is local
-            beam.SetPosition(0, beam.transform.position);
+            // LineRenderer uses world space, but laser pointer position is local
+            beam.SetPosition(0, transform.position);
             beam.SetPosition(1, dotPosition);
 
-            collider.center = dotPosition - transform.position;
+            collider.center = transform.InverseTransformPoint(dotPosition);
 
             batteryLevel.ChangeValue(-Time.deltaTime);
 
-
+            // Update the global variable to cats can chase it
+            hitWorldSpace.SetValue(dotPosition);
 
             // then you calculate the position of the UI element
             // 0,0 for the canvas is at the center of the screen, whereas
@@ -74,14 +64,21 @@ public class LaserPointer : MonoBehaviour
         }
     }
 
-    public void Shine(Ray mouse, LayerMask layer)
+    public void Shine(Vector3 mousePosition, LayerMask layer)
     {
-        beam.enabled = true;
-        collider.radius = 6;
-        dotUI.gameObject.SetActive(true);
+        if (batteryLevel.Value > 0)
+        {
+            beam.enabled = true;
+            collider.radius = 6;
+            dotUI.gameObject.SetActive(true);
 
-        mousePositionRay = mouse;
-        walkableLayer = layer;
+            mouseInWorldSpace = mousePosition;
+            mouseHitLayer = layer;
+        }
+        else
+        {
+            TurnOff();
+        }
     }
 
     public void TurnOff()

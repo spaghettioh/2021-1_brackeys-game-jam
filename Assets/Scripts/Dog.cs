@@ -18,6 +18,12 @@ public class Dog : MonoBehaviour
         originalColor = material.color;
     }
 
+    private void Update()
+    {
+        Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out RaycastHit fuckyou);
+        //transform.position = fuckyou.point;
+    }
+
     public void KillMe()
     {
         Destroy(gameObject);
