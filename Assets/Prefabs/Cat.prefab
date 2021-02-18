@@ -51,6 +51,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   throwForce: 20
   moveSpeed: 4
+  laserPointerHitWorldSpace: {fileID: 11400000, guid: ff71c9e7390274e2caa276a7df38e71a, type: 2}
+  following: 
+  followPosition: {x: 0, y: 0, z: 0}
   damageable: {fileID: 0}
   material: {fileID: 0}
   leader: {fileID: 0}

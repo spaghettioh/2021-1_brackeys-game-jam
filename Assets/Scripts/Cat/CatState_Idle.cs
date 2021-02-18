@@ -24,11 +24,26 @@ public class CatState_Idle : State
 
     public override void OnTriggerEnter(Collider other)
     {
-        // Always follow player
+        // Follow player
         if (other.gameObject.GetComponent<Leader>())
         {
-            Cat.ChangeState<CatState_FollowLeader>();
+            Cat.following = "leader";
+            Cat.ChangeState<CatState_Follow>();
         }
+
     }
 
+    public override void OnTriggerStay(Collider collider)
+    {
+        if (Cat.following != "leader")
+        {
+            // Follow laser
+            if (collider.gameObject.GetComponent<LaserPointer>())
+            {
+                Cat.following = "laser";
+                Cat.ChangeState<CatState_Follow>();
+            }
+
+        }
+    }
 }

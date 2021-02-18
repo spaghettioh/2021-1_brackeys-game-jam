@@ -8,6 +8,10 @@ public class Cat : MachineBehaviour
     public float throwForce;
     public float moveSpeed;
 
+    public Vector3Variable laserPointerHitWorldSpace;
+    public string following;
+    public Vector3 followPosition;
+
     [HideInInspector]
     public Damageable damageable;
 
@@ -24,7 +28,7 @@ public class Cat : MachineBehaviour
     public override void AddStates()
     {
         AddState<CatState_Idle>();
-        AddState<CatState_FollowLeader>();
+        AddState<CatState_Follow>();
         AddState<CatState_Thrown>();
         AddState<CatState_Damaged>();
 
@@ -39,6 +43,11 @@ public class Cat : MachineBehaviour
         material = GetComponent<MeshRenderer>().material;
 
         leader = FindObjectOfType<Leader>();
+    }
+
+    public override void Update()
+    {
+        base.Update();
     }
 
     public void ThrowCat(Vector3 startPosition, Vector3 direction)
