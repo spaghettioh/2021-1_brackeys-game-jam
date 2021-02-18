@@ -46,8 +46,9 @@ public class Cat : MachineBehaviour
         damageable = GetComponent<Damageable>();
         material = GetComponentInChildren<SkinnedMeshRenderer>().material;
         anim = GetComponent<Animator>();
-
         leader = FindObjectOfType<Leader>();
+
+        transform.rotation = transform.rotation = Quaternion.Euler(0, Random.Range(0, 359), 0);
     }
 
     public void ThrowCat(Vector3 startPosition, Vector3 direction)
